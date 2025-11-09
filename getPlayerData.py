@@ -1,0 +1,114 @@
+import csv
+import json
+import os
+import requests
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+CSV_INPUT = "mute_list.csv"
+JSON_OUTPUT = "playerData.json"
+
+STEAM_KEY = "2D01D80224108A449432583EA81C08B3"
+
+PLAYER_SUMMARY_URL = "https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/"
+OWNED_GAMES_URL = "https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/"
+RUST_APP_ID = 252490
+MAX_THREADS = 5  # concurrent threads
+
+def fetch_profile(steam_id):
+    try:
+        r = requests.get(
+            PLAYER_SUMMARY_URL,
+            params={"key": STEAM_KEY, "steamids": steam_id},
+            timeout=10,
+        )
+        r.raise_for_status()
+        players = r.json().get("response", {}).get("players", [])
+        return players[0] if players else None
+    except Exception as e:
+        print(f"Profile error {steam_id}: {e}")
+        return None
+
+def fetch_rust_hours(steam_id):
+    try:
+        r = requests.get(
+            OWNED_GAMES_URL,
+            params={
+                "key": STEAM_KEY,
+                "steamid": steam_id,
+                "include_played_free_games": 1,
+                "include_appinfo": 0,
+            },
+            timeout=10,
+        )
+        r.raise_for_status()
+        games = r.json().get("response", {}).get("games", [])
+        for g in games:
+            if g["appid"] == RUST_APP_ID:
+                total = round(g.get("playtime_forever", 0) / 60, 1)
+                recent = round(g.get("playtime_2weeks", 0) / 60, 1)
+                return total, recent
+        return 0, 0
+    except Exception as e:
+        print(f"Rust hours error {steam_id}: {e}")
+        return 0, 0
+
+def fetch_player_data(steam_id, profile_url):
+    profile = fetch_profile(steam_id)
+    total, recent = fetch_rust_hours(steam_id)
+    name = profile.get("personaname", "UNKNOWN") if profile else "UNKNOWN"
+    private = profile is None
+    return {
+        "steam_id": steam_id,
+        "name": name,
+        "rust_hours_total": total,
+        "rust_hours_2weeks": recent,
+        "profile_url": profile_url,
+        "flags": {"private_profile": private}
+    }
+
+def main():
+    # Load existing JSON if it exists
+    existing_data = {}
+    if os.path.exists(JSON_OUTPUT):
+        with open(JSON_OUTPUT, "r", encoding="utf-8") as f:
+            existing_data_list = json.load(f)
+            existing_data = {entry["steam_id"]: entry for entry in existing_data_list}
+
+    # Read all rows from CSV
+    with open(CSV_INPUT, newline="", encoding="utf-8") as f:
+        reader = csv.reader(f)
+        rows = list(reader)
+
+    # Filter Steam IDs to only those not already in JSON
+    steam_rows = [row for row in rows if row[1].strip() not in existing_data]
+
+    # Pre-populate results with existing data
+    results = list(existing_data.values())
+
+    if not steam_rows:
+        print("All Steam IDs already fetched. Nothing to do.")
+        return
+
+    # Fetch new data concurrently
+    with ThreadPoolExecutor(max_workers=MAX_THREADS) as executor:
+        future_to_sid = {
+            executor.submit(fetch_player_data, row[1].strip(), row[2].strip()): row[1].strip()
+            for row in steam_rows
+        }
+        for future in as_completed(future_to_sid):
+            sid = future_to_sid[future]
+            try:
+                data = future.result()
+                results.append(data)
+                print(f"[{sid}] -> {data['name']} | Total: {data['rust_hours_total']}h | 2 weeks: {data['rust_hours_2weeks']}h")
+            except Exception as e:
+                print(f"[{sid}] ERROR: {e}")
+
+    # Save combined JSON
+    with open(JSON_OUTPUT, "w", encoding="utf-8") as f:
+        json.dump(results, f, indent=4)
+
+    print("Done! Output written to:", JSON_OUTPUT)
+
+if __name__ == "__main__":
+    main()
