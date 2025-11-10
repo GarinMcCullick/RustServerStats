@@ -4,12 +4,48 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QCursor, QGuiApplication
+import pandas as pd
+import json
+from pathlib import Path
+
+DATA_JSON = Path(r"C:\Users\GordanRamsey\Desktop\RustLobbyTracker\player_data.json")
 
 class SearchTab(QWidget):
-    def __init__(self, df):
+    def __init__(self, df=None):
         super().__init__()
-        self.df = df
+        self.df = df.copy() if df is not None else pd.DataFrame()
         self.init_ui()
+        self.start_json_watcher()
+
+    # Called when JSON updates
+    def refresh_data(self, df):
+        """Update tab with new data."""
+        self.df = df.copy()
+        self.update_results()
+
+    def start_json_watcher(self):
+        """Watch JSON file and refresh automatically."""
+        self.last_mtime = 0
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.check_json)
+        self.timer.start(1000)  # every second
+
+    def check_json(self):
+        try:
+            if DATA_JSON.exists():
+                mtime = DATA_JSON.stat().st_mtime
+                if mtime != self.last_mtime:
+                    self.last_mtime = mtime
+                    with open(DATA_JSON, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+                    df = pd.DataFrame(data)
+                    # Ensure essential columns exist
+                    for col in ["rust_hours_total", "rust_hours_2weeks", "flags"]:
+                        if col not in df.columns:
+                            df[col] = 0 if "hours" in col else [{}]
+                    self.refresh_data(df)
+        except Exception as e:
+            print("[Watcher] Error:", e)
 
     def show_copied_message(self, parent_widget):
         msg = QLabel("Copied!", parent_widget)
@@ -25,21 +61,17 @@ class SearchTab(QWidget):
         msg.setAttribute(Qt.WA_TransparentForMouseEvents)
         msg.setAlignment(Qt.AlignCenter)
 
-        # Position the label centered on the parent widget
+        # Center the label on parent
         msg.adjustSize()
         x = (parent_widget.width() - msg.width()) // 2
         y = (parent_widget.height() - msg.height()) // 2
         msg.move(x, y)
         msg.show()
 
-        # Auto-hide after 1 second
         QTimer.singleShot(1000, msg.deleteLater)
 
     def copy_text(self, label):
-        from PySide6.QtGui import QGuiApplication
-        # Copy text to clipboard
         QGuiApplication.clipboard().setText(label.text())
-        # Show modern "Copied!" message on label
         self.show_copied_message(label)
 
     def init_ui(self):
@@ -109,6 +141,9 @@ class SearchTab(QWidget):
         # Connect search
         self.search_input.textChanged.connect(self.update_results)
 
+        # Initial populate
+        self.update_results()
+
     def clear_results(self):
         while self.results_layout.count():
             item = self.results_layout.takeAt(0)
@@ -119,10 +154,18 @@ class SearchTab(QWidget):
 
     def update_results(self):
         self.clear_results()
-        text = self.search_input.text().lower()
+        text = self.search_input.text().lower() if self.search_input.text() else ""
+        if self.df.empty:
+            return
+
+        # Add missing columns to avoid errors
+        for col in ["rust_hours_total", "rust_hours_2weeks"]:
+            if col not in self.df.columns:
+                self.df[col] = 0
+
         matches = self.df[
             self.df["name"].str.lower().str.contains(text) |
-            self.df["steam_id"].str.contains(text)
+            self.df["steam_id"].astype(str).str.contains(text)
         ]
 
         for row in matches.itertuples():
@@ -138,7 +181,7 @@ class SearchTab(QWidget):
 
             labels = [
                 QLabel(row.name),
-                QLabel(row.steam_id),
+                QLabel(str(row.steam_id)),
                 QLabel(f"{row.rust_hours_total} h"),
                 QLabel(f"{row.rust_hours_2weeks} h"),
                 QLabel(f"<a href='https://steamcommunity.com/profiles/{row.steam_id}'>Link</a>")
@@ -152,7 +195,7 @@ class SearchTab(QWidget):
                     lbl.setTextFormat(Qt.TextFormat.RichText)
                     lbl.setOpenExternalLinks(True)
                     lbl.setCursor(QCursor(Qt.PointingHandCursor))
-                else:  # text columns
+                else:
                     lbl.setCursor(QCursor(Qt.PointingHandCursor))
                     lbl.mousePressEvent = lambda e, l=lbl: self.copy_text(l)
 
