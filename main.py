@@ -351,10 +351,6 @@ if __name__ == "__main__":
     sys.stdout = StreamRedirector(overlay)
     sys.stderr = StreamRedirector(overlay)
 
-    # Start OCR thread
-    from rust_ocr import start_ocr_thread
-    threading.Thread(target=start_ocr_thread, daemon=True).start()
-
     # Launch dashboard
     from rust_dashboard.launch_dashboard import RustDashboard
     dashboard = RustDashboard()
