@@ -49,5 +49,4 @@ def load_data():
 
     df = pd.DataFrame(cleaned_data, columns=expected_columns)
     print(f"[load_data] Loaded {len(df)} players from JSON")
-    print(df.head(3))  # Show first 3 rows for debug
     return df

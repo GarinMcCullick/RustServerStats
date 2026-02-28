@@ -335,7 +335,7 @@ if __name__ == "__main__":
     keyboard.add_hotkey("F8", start_capture)
     keyboard.add_hotkey("F9", stop_capture)
     keyboard.add_hotkey("F10", lambda: os._exit(0))
-    # After you create the overlay, add this:
+
     class StreamRedirector:
         def __init__(self, overlay):
             self.overlay = overlay

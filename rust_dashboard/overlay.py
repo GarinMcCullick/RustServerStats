@@ -84,6 +84,12 @@ class InGameOverlay(QWidget):
         self.resize(self.default_width, self.default_height)
         self.container.resize(self.default_width, self.default_height)
 
+        #mouse tracking for cursor changes
+        self.container.setMouseTracking(True)
+        self.setMouseTracking(True)
+        for w in [self.start_btn, self.stop_btn, self.dropdown_btn, self.terminal]:
+            w.setMouseTracking(True)
+            w.installEventFilter(self)
         # Top-right anchor
         QTimer.singleShot(0, self.position_top_right)
 
@@ -98,50 +104,23 @@ class InGameOverlay(QWidget):
     # ---------------------
     # Mouse events (drag & resize)
     # ---------------------
-    def mousePressEvent(self, event):
-        pos = event.pos()
-        rect = self.rect()
-        margin = self.EDGE_MARGIN
 
-        left = pos.x() < margin
-        right = pos.x() > rect.width() - margin
-        top = pos.y() < margin
-        bottom = pos.y() > rect.height() - margin
+    def eventFilter(self, obj, event):
+        if event.type() == event.Type.MouseMove:
+            pos = self.mapFromGlobal(event.globalPosition().toPoint())
 
-        if left or right or top or bottom:
-            self.resizing = True
-            self.start_pos = event.globalPosition().toPoint()
-            self.start_geom = self.geometry()
-            self.resize_edge = (left, right, top, bottom)
-        elif event.button() == Qt.LeftButton:
-            hwnd = self.winId().__int__()
-            user32.ReleaseCapture()
-            user32.SendMessageW(hwnd, WM_NCLBUTTONDOWN, HTCAPTION, 0)
-        event.accept()
+            # Buttons → pointer
+            if any(btn.geometry().contains(btn.mapFromParent(event.position().toPoint()))
+                for btn in [self.start_btn, self.stop_btn, self.dropdown_btn]):
+                self.setCursor(Qt.PointingHandCursor)
+                return False
 
-    def mouseMoveEvent(self, event):
-        pos = event.pos()
-        if self.resizing:
-            delta = event.globalPosition().toPoint() - self.start_pos
-            geom = QRect(self.start_geom)
-            left, right, top, bottom = self.resize_edge
+            # Terminal → text cursor
+            if self.terminal.geometry().contains(self.terminal.mapFromParent(event.position().toPoint())):
+                self.setCursor(Qt.IBeamCursor)
+                return False
 
-            # Adjust geometry smoothly
-            if left:
-                geom.setLeft(geom.left() + delta.x())
-            if right:
-                geom.setRight(geom.right() + delta.x())
-            if top:
-                geom.setTop(geom.top() + delta.y())
-            if bottom:
-                geom.setBottom(geom.bottom() + delta.y())
-
-            geom.setWidth(max(150, geom.width()))
-            geom.setHeight(max(150, geom.height()))
-            self.setGeometry(geom)
-            self.container.resize(geom.width(), geom.height())
-        else:
-            # Update cursor dynamically like Windows
+            # Edges → resize cursors
             margin = self.EDGE_MARGIN
             cursor = Qt.ArrowCursor
             if pos.x() < margin and pos.y() < margin:
@@ -156,7 +135,88 @@ class InGameOverlay(QWidget):
                 cursor = Qt.SizeHorCursor
             elif pos.y() < margin or pos.y() > self.height() - margin:
                 cursor = Qt.SizeVerCursor
+            else:
+                # Empty space → move
+                cursor = Qt.SizeAllCursor
+
             self.setCursor(cursor)
+            return False
+
+        return super().eventFilter(obj, event)
+
+    def mousePressEvent(self, event):
+        pos = event.pos()
+        # 1️⃣ Buttons → let Qt handle normal clicks
+        if any(btn.geometry().contains(pos) for btn in [self.start_btn, self.stop_btn, self.dropdown_btn]):
+            self.setCursor(Qt.PointingHandCursor)
+            return super().mousePressEvent(event)
+
+        # 2️⃣ Edges → start resizing
+        rect = self.rect()
+        margin = self.EDGE_MARGIN
+        left = pos.x() < margin
+        right = pos.x() > rect.width() - margin
+        top = pos.y() < margin
+        bottom = pos.y() > rect.height() - margin
+
+        if left or right or top or bottom:
+            self.resizing = True
+            self.start_pos = event.globalPosition().toPoint()
+            self.start_geom = self.geometry()
+            self.resize_edge = (left, right, top, bottom)
+        elif event.button() == Qt.LeftButton:
+            # 3️⃣ Drag window
+            hwnd = self.winId().__int__()
+            user32.ReleaseCapture()
+            user32.SendMessageW(hwnd, WM_NCLBUTTONDOWN, HTCAPTION, 0)
+        event.accept()
+
+
+    def mouseMoveEvent(self, event):
+        pos = event.pos()
+
+        # 1️⃣ Buttons → pointer cursor
+        if any(btn.geometry().contains(pos) for btn in [self.start_btn, self.stop_btn, self.dropdown_btn]):
+            self.setCursor(Qt.PointingHandCursor)
+            return
+
+        # 2️⃣ Resizing
+        if self.resizing:
+            delta = event.globalPosition().toPoint() - self.start_pos
+            geom = QRect(self.start_geom)
+            left, right, top, bottom = self.resize_edge
+
+            if left: geom.setLeft(geom.left() + delta.x())
+            if right: geom.setRight(geom.right() + delta.x())
+            if top: geom.setTop(geom.top() + delta.y())
+            if bottom: geom.setBottom(geom.bottom() + delta.y())
+
+            geom.setWidth(max(150, geom.width()))
+            geom.setHeight(max(150, geom.height()))
+            self.setGeometry(geom)
+            self.container.resize(geom.width(), geom.height())
+            return
+
+        # 3️⃣ Edges & corners → resize cursors
+        margin = self.EDGE_MARGIN
+        cursor = Qt.ArrowCursor
+        if pos.x() < margin and pos.y() < margin:
+            cursor = Qt.SizeFDiagCursor
+        elif pos.x() > self.width() - margin and pos.y() < margin:
+            cursor = Qt.SizeBDiagCursor
+        elif pos.x() < margin and pos.y() > self.height() - margin:
+            cursor = Qt.SizeBDiagCursor
+        elif pos.x() > self.width() - margin and pos.y() > self.height() - margin:
+            cursor = Qt.SizeFDiagCursor
+        elif pos.x() < margin or pos.x() > self.width() - margin:
+            cursor = Qt.SizeHorCursor
+        elif pos.y() < margin or pos.y() > self.height() - margin:
+            cursor = Qt.SizeVerCursor
+        else:
+            # 4️⃣ Empty draggable space → move cursor
+            cursor = Qt.SizeAllCursor
+
+        self.setCursor(cursor)
 
     def mouseReleaseEvent(self, event):
         self.resizing = False
