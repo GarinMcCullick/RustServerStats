@@ -8,11 +8,14 @@ import re
 import tempfile
 import subprocess
 from pathlib import Path
-from PySide6.QtCore import QObject, QTimer
-
+from PySide6.QtCore import QObject, QTimer, Qt
+from PySide6.QtWidgets import QWidget, QApplication
+from PySide6.QtGui import QPainter, QColor
+from PySide6.QtCore import QEvent, QCoreApplication
 # --- Globals ---
 running = False
 final_results = {}  # steamid64 -> name
+debug_overlay = None
 
 SAVE_CSV = r"C:\Users\GordanRamsey\Desktop\RustLobbyTracker\mute_list.csv"
 DATA_JSON = Path(r"C:\Users\GordanRamsey\Desktop\RustLobbyTracker\player_data.json")
@@ -29,6 +32,39 @@ if not os.path.exists(SAVE_CSV):
         writer = csv.writer(f)
         writer.writerow(["name", "steamid", "profile_url"])
     print(f"[INFO] Created {SAVE_CSV}")
+
+# --- Overlay class ---
+class OCRDebugOverlay(QWidget):
+    """Full-screen transparent overlay showing OCR regions."""
+    def __init__(self, regions):
+        super().__init__()
+        self.regions = regions  # list of tuples: (left, top, right, bottom)
+        self.setWindowFlags(
+            Qt.FramelessWindowHint |
+            Qt.WindowStaysOnTopHint |
+            Qt.Tool |
+            Qt.WindowTransparentForInput  # click-through
+        )
+        self.setAttribute(Qt.WA_TranslucentBackground)
+        self.setAttribute(Qt.WA_NoSystemBackground)
+        self.setAttribute(Qt.WA_TransparentForMouseEvents)
+        screen = QApplication.primaryScreen()
+        self.setGeometry(0, 0, screen.size().width(), screen.size().height())
+
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.update)
+        self.timer.start(50)
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setPen(QColor(255, 0, 0, 200))
+        painter.setBrush(QColor(255, 0, 0, 50))
+        for left, top, right, bottom in self.regions:
+            painter.drawRect(left, top, right - left, bottom - top)
+
+    def update_regions(self, regions):
+        self.regions = regions
+        self.update()
 
 # --- Helper functions ---
 def capture_region():
@@ -79,7 +115,7 @@ def save_csv():
         writer = csv.writer(f)
         writer.writerow(["name", "steamid", "profile_url"])
         for sid, name in final_results.items():
-            writer.writerow([name, sid, f"https://steamcommunity.com/profiles/{sid}"] )
+            writer.writerow([name, sid, f"https://steamcommunity.com/profiles/{sid}"])
     print(f"[+] Saved {len(final_results)} entries to {SAVE_CSV}")
 
 def ocr_image(img, psm=6):
@@ -99,10 +135,9 @@ def ocr_image(img, psm=6):
         return []
 
 # --- Capture loop ---
-def capture_loop():
-    global running, final_results
+def capture_loop(controller):
     print("\n[+] Capture started — scroll the mute list in Rust...\n")
-    while running:
+    while controller.running:
         img = capture_region()
         img = preprocess(img)
         left_img, right_img = split_columns(img)
@@ -134,32 +169,59 @@ def capture_loop():
     save_csv()
 
 # --- OCR hotkeys ---
-def start_ocr_thread():
-    global running
+def start_ocr_thread(controller):
+    global debug_overlay
+
+    if not debug_overlay:
+        ocr_regions = [
+            (LEFT, TOP, LEFT + (RIGHT-LEFT)//3 + OVERLAP_PIXELS, BOTTOM),
+            (LEFT + (RIGHT-LEFT)//3 - OVERLAP_PIXELS, TOP, RIGHT, BOTTOM)
+        ]
+        debug_overlay = OCRDebugOverlay(ocr_regions)
+        debug_overlay.hide()  # start hidden
+
+    from PySide6.QtCore import QObject, Signal, QMetaObject, Qt, Q_ARG
+
+    class OverlayController(QObject):
+        toggle_signal = Signal(bool)
+        def __init__(self):
+            super().__init__()
+            self.toggle_signal.connect(debug_overlay.setVisible)
+
+        def toggle(self, visible: bool):
+            # Use queued connection to ensure main-thread GUI update
+            QMetaObject.invokeMethod(debug_overlay, "setVisible", Qt.QueuedConnection, Q_ARG(bool, visible))
+
+    overlay_controller = OverlayController()
 
     def start_capture():
-        global running
-        if not running:
-            running = True
-            threading.Thread(target=capture_loop, daemon=True).start()
+        if not controller.running:
+            controller.running = True
+            overlay_controller.toggle(True)
+            threading.Thread(target=capture_loop, args=(controller,), daemon=True).start()
             print("[HOTKEY] F8 pressed → Capture started")
+        else:
+            print("[HOTKEY] F8 pressed → Capture already running")
 
     def stop_capture():
-        global running
-        running = False
-        print("[HOTKEY] F9 pressed → Capture stopping...")
+        if controller.running:
+            controller.running = False
+            overlay_controller.toggle(False)
+            print("[HOTKEY] F9 pressed → Capture stopped")
+        else:
+            print("[HOTKEY] F9 pressed → Capture not running")
 
     def exit_program():
-        global running
-        running = False
-        print("[HOTKEY] F10 pressed → Exiting program...")
-        time.sleep(0.5)
+        controller.running = False
+        overlay_controller.toggle(False)
+        print("[HOTKEY] F10 pressed → Exiting program")
+        time.sleep(0.2)
         os._exit(0)
 
+    # --- Connect hotkeys ---
     keyboard.add_hotkey("F8", start_capture)
     keyboard.add_hotkey("F9", stop_capture)
     keyboard.add_hotkey("F10", exit_program)
-    keyboard.wait()
 
 # --- JSON watcher ---
 class JSONWatcher(QObject):
@@ -170,7 +232,7 @@ class JSONWatcher(QObject):
         self.last_mtime = 0
         self.timer = QTimer()
         self.timer.timeout.connect(self.check_json)
-        self.timer.start(1000)  # check every second
+        self.timer.start(1000)
 
     def check_json(self):
         try:
@@ -182,3 +244,14 @@ class JSONWatcher(QObject):
                     self.dashboard.refresh_data()
         except Exception as e:
             print("[Watcher] Error:", e)
+
+# --- Run overlay and hotkeys ---
+if __name__ == "__main__":
+    app = QApplication([])
+
+    from main import OCRController  # ensure you create this in main
+
+    ocr_controller = OCRController()
+    start_ocr_thread(ocr_controller)
+
+    app.exec()

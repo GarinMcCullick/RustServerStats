@@ -7,11 +7,14 @@ import csv
 from pathlib import Path
 from datetime import datetime
 from functools import partial
+import keyboard
 
 from PySide6.QtCore import Qt, QTimer, QObject, Signal
 from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QTableWidget, QTableWidgetItem, QLineEdit, QLabel, QCheckBox
 from PySide6.QtGui import QGuiApplication, QCursor, QColor
 from rust_dashboard.overlay import InGameOverlay
+from rust_ocr import capture_loop
+from rust_ocr import OCRDebugOverlay
 
 # ========================================================
 # FILE PATHS
@@ -260,18 +263,93 @@ class DashboardUpdater(QObject):
 if __name__ == "__main__":
     app = QApplication([])
 
-    # Overlay
+    # --- Ensure global running exists ---
+    running = False
+
+    # --- Controller ---
     class OCRController:
+        def __init__(self):
+            self.running = False
+
         def start_capture(self):
-            print("Start OCR")
-            # call your real function
+            if not self.running:
+                self.running = True
+                threading.Thread(target=capture_loop, args=(self,), daemon=True).start()
+                print("[Overlay] Start OCR (button)")
+            else:
+                print("[Overlay] OCR already running")
 
         def stop_capture(self):
-            print("Stop OCR")
-            # call your real function
+            if self.running:
+                self.running = False
+                print("[Overlay] Stop OCR (button)")
+            else:
+                print("[Overlay] OCR not running")
 
-    overlay = InGameOverlay(OCRController())
+    # --- Create overlay and controller ---
+    ocr_controller = OCRController()
+    # --- Overlay ---
+    overlay = InGameOverlay(ocr_controller)
+    overlay.start_btn.clicked.connect(ocr_controller.start_capture)
+    overlay.stop_btn.clicked.connect(ocr_controller.stop_capture)
     overlay.show()
+    overlay.run_script(["python", "getPlayerData.py"])
+
+    # --- Debug overlay ---
+    LEFT, TOP, RIGHT, BOTTOM = 380, 285, 1600, 1000
+    OVERLAP_PIXELS = 4
+    ocr_regions = [
+        (LEFT, TOP, LEFT + (RIGHT-LEFT)//3 + OVERLAP_PIXELS, BOTTOM),
+        (LEFT + (RIGHT-LEFT)//3 - OVERLAP_PIXELS, TOP, RIGHT, BOTTOM)
+    ]
+    debug_overlay = OCRDebugOverlay(ocr_regions)
+    debug_overlay.hide()
+
+    # --- Overlay Controller ---
+    class OverlayController(QObject):
+        toggle_signal = Signal(bool)
+        def __init__(self, overlay):
+            super().__init__()
+            self.overlay = overlay
+            self.toggle_signal.connect(self.overlay.setVisible)
+
+        def toggle(self, visible: bool):
+            self.toggle_signal.emit(visible)
+
+    overlay_controller = OverlayController(debug_overlay)
+
+    # --- Hotkey functions ---
+    def start_capture():
+        ocr_controller.start_capture()
+        overlay_controller.toggle(True)
+        debug_overlay.show()
+
+    def stop_capture():
+        ocr_controller.stop_capture()
+        overlay_controller.toggle(False)
+        debug_overlay.hide()
+
+    # --- Hotkeys ---
+    overlay.start_btn.clicked.connect(start_capture)
+    overlay.stop_btn.clicked.connect(stop_capture)
+    keyboard.add_hotkey("F8", start_capture)
+    keyboard.add_hotkey("F9", stop_capture)
+    keyboard.add_hotkey("F10", lambda: os._exit(0))
+    # After you create the overlay, add this:
+    class StreamRedirector:
+        def __init__(self, overlay):
+            self.overlay = overlay
+
+        def write(self, text):
+            if text.strip():  # avoid blank lines
+                self.overlay.log(text)
+
+        def flush(self):
+            pass  # required for file-like objects
+
+    # Redirect stdout/stderr to overlay
+    sys.stdout = StreamRedirector(overlay)
+    sys.stderr = StreamRedirector(overlay)
 
     # Start OCR thread
     from rust_ocr import start_ocr_thread
