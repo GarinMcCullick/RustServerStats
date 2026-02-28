@@ -6,7 +6,8 @@
         "rust_hours_2weeks": 0,
         "profile_url": "https://steamcommunity.com/profiles/76561199699016189",
         "flags": {
-            "private_profile": false
+            "private_profile": false,
+            "flagged": false
         }
     },
     {
@@ -16,7 +17,8 @@
         "rust_hours_2weeks": 112.6,
         "profile_url": "https://steamcommunity.com/profiles/76561199559144776",
         "flags": {
-            "private_profile": false
+            "private_profile": false,
+            "flagged": false
         }
     },
     {
@@ -26,7 +28,8 @@
         "rust_hours_2weeks": 50.1,
         "profile_url": "https://steamcommunity.com/profiles/76561199066194419",
         "flags": {
-            "private_profile": false
+            "private_profile": false,
+            "flagged": false
         }
     },
     {
@@ -36,7 +39,9 @@
         "rust_hours_2weeks": 34.9,
         "profile_url": "https://steamcommunity.com/profiles/76561199884735068",
         "flags": {
-            "private_profile": false
+            "private_profile": false,
+            "flagged": true,
+            "flagged_at": "2025-11-12T19:48:02"
         }
     },
     {
@@ -46,7 +51,9 @@
         "rust_hours_2weeks": 0,
         "profile_url": "https://steamcommunity.com/profiles/76561198286959205",
         "flags": {
-            "private_profile": false
+            "private_profile": false,
+            "flagged": true,
+            "flagged_at": "2025-11-12T19:53:18"
         }
     },
     {
@@ -56,7 +63,9 @@
         "rust_hours_2weeks": 0.0,
         "profile_url": "https://steamcommunity.com/profiles/76561198313906248",
         "flags": {
-            "private_profile": false
+            "private_profile": false,
+            "flagged": true,
+            "flagged_at": "2025-11-12T19:57:13"
         }
     },
     {
@@ -66,7 +75,8 @@
         "rust_hours_2weeks": 5.2,
         "profile_url": "https://steamcommunity.com/profiles/76561199071862615",
         "flags": {
-            "private_profile": false
+            "private_profile": false,
+            "flagged": false
         }
     },
     {
@@ -76,7 +86,9 @@
         "rust_hours_2weeks": 15.0,
         "profile_url": "https://steamcommunity.com/profiles/76561198960299758",
         "flags": {
-            "private_profile": false
+            "private_profile": false,
+            "flagged": true,
+            "flagged_at": "2025-11-12T19:58:34"
         }
     },
     {
@@ -136,7 +148,9 @@
         "rust_hours_2weeks": 83.8,
         "profile_url": "https://steamcommunity.com/profiles/76561198100230670",
         "flags": {
-            "private_profile": false
+            "private_profile": false,
+            "flagged": true,
+            "flagged_at": "2025-11-12T19:59:53"
         }
     },
     {
@@ -166,7 +180,8 @@
         "rust_hours_2weeks": 0,
         "profile_url": "https://steamcommunity.com/profiles/76561199444384549",
         "flags": {
-            "private_profile": false
+            "private_profile": false,
+            "flagged": false
         }
     },
     {
@@ -2195,6 +2210,426 @@
         "rust_hours_total": 0,
         "rust_hours_2weeks": 0,
         "profile_url": "https://steamcommunity.com/profiles/76561199077356808",
+        "flags": {
+            "private_profile": false
+        }
+    },
+    {
+        "steam_id": "76561198995428074",
+        "name": "\u272a C\u00d8\u00d0\u00c8X",
+        "rust_hours_total": 210.4,
+        "rust_hours_2weeks": 38.1,
+        "profile_url": "https://steamcommunity.com/profiles/76561198995428074",
+        "flags": {
+            "private_profile": false
+        }
+    },
+    {
+        "steam_id": "76561199343781598",
+        "name": "Alexander.",
+        "rust_hours_total": 647.9,
+        "rust_hours_2weeks": 51.4,
+        "profile_url": "https://steamcommunity.com/profiles/76561199343781598",
+        "flags": {
+            "private_profile": false
+        }
+    },
+    {
+        "steam_id": "76561199273820373",
+        "name": "adamhui",
+        "rust_hours_total": 0,
+        "rust_hours_2weeks": 0,
+        "profile_url": "https://steamcommunity.com/profiles/76561199273820373",
+        "flags": {
+            "private_profile": false
+        }
+    },
+    {
+        "steam_id": "76561199239176447",
+        "name": "#Eren",
+        "rust_hours_total": 1049.2,
+        "rust_hours_2weeks": 71.2,
+        "profile_url": "https://steamcommunity.com/profiles/76561199239176447",
+        "flags": {
+            "private_profile": false
+        }
+    },
+    {
+        "steam_id": "76561199102199815",
+        "name": "Yusef12Ha",
+        "rust_hours_total": 1145.9,
+        "rust_hours_2weeks": 92.5,
+        "profile_url": "https://steamcommunity.com/profiles/76561199102199815",
+        "flags": {
+            "private_profile": false
+        }
+    },
+    {
+        "steam_id": "76561199375539032",
+        "name": "ARCAD\u0130A",
+        "rust_hours_total": 0.0,
+        "rust_hours_2weeks": 0.0,
+        "profile_url": "https://steamcommunity.com/profiles/76561199375539032",
+        "flags": {
+            "private_profile": false
+        }
+    },
+    {
+        "steam_id": "76561198172649757",
+        "name": "Attila",
+        "rust_hours_total": 1047.8,
+        "rust_hours_2weeks": 75.6,
+        "profile_url": "https://steamcommunity.com/profiles/76561198172649757",
+        "flags": {
+            "private_profile": false
+        }
+    },
+    {
+        "steam_id": "76561198328814532",
+        "name": "\ud835\udc37\ud835\udc48\ud835\udc45\ud835\udc3e\ud835\udc38\ud835\udc41",
+        "rust_hours_total": 845.3,
+        "rust_hours_2weeks": 24.6,
+        "profile_url": "https://steamcommunity.com/profiles/76561198328814532",
+        "flags": {
+            "private_profile": false
+        }
+    },
+    {
+        "steam_id": "76561198081725450",
+        "name": "AliasPlay",
+        "rust_hours_total": 0,
+        "rust_hours_2weeks": 0,
+        "profile_url": "https://steamcommunity.com/profiles/76561198081725450",
+        "flags": {
+            "private_profile": false
+        }
+    },
+    {
+        "steam_id": "76561198211871656",
+        "name": "1pac",
+        "rust_hours_total": 2452.8,
+        "rust_hours_2weeks": 49.6,
+        "profile_url": "https://steamcommunity.com/profiles/76561198211871656",
+        "flags": {
+            "private_profile": false
+        }
+    },
+    {
+        "steam_id": "76561199206992428",
+        "name": "adnegutt",
+        "rust_hours_total": 0,
+        "rust_hours_2weeks": 0,
+        "profile_url": "https://steamcommunity.com/profiles/76561199206992428",
+        "flags": {
+            "private_profile": false
+        }
+    },
+    {
+        "steam_id": "76561198161611073",
+        "name": "\u2605LPJOVEM\u2605",
+        "rust_hours_total": 0,
+        "rust_hours_2weeks": 0,
+        "profile_url": "https://steamcommunity.com/profiles/76561198161611073",
+        "flags": {
+            "private_profile": false
+        }
+    },
+    {
+        "steam_id": "76561198010469760",
+        "name": "Archelaus.",
+        "rust_hours_total": 3497.8,
+        "rust_hours_2weeks": 18.1,
+        "profile_url": "https://steamcommunity.com/profiles/76561198010469760",
+        "flags": {
+            "private_profile": false
+        }
+    },
+    {
+        "steam_id": "76561198186607323",
+        "name": "bLue",
+        "rust_hours_total": 0,
+        "rust_hours_2weeks": 0,
+        "profile_url": "https://steamcommunity.com/profiles/76561198186607323",
+        "flags": {
+            "private_profile": false
+        }
+    },
+    {
+        "steam_id": "76561198224347324",
+        "name": "Jubei",
+        "rust_hours_total": 1459.3,
+        "rust_hours_2weeks": 66.6,
+        "profile_url": "https://steamcommunity.com/profiles/76561198224347324",
+        "flags": {
+            "private_profile": false
+        }
+    },
+    {
+        "steam_id": "76561199736820237",
+        "name": "ANT$M",
+        "rust_hours_total": 0,
+        "rust_hours_2weeks": 0,
+        "profile_url": "https://steamcommunity.com/profiles/76561199736820237",
+        "flags": {
+            "private_profile": false
+        }
+    },
+    {
+        "steam_id": "76561198233176668",
+        "name": "[QM] Frankee",
+        "rust_hours_total": 0,
+        "rust_hours_2weeks": 0,
+        "profile_url": "https://steamcommunity.com/profiles/76561198233176668",
+        "flags": {
+            "private_profile": false
+        }
+    },
+    {
+        "steam_id": "76561199755976764",
+        "name": "44",
+        "rust_hours_total": 2284.9,
+        "rust_hours_2weeks": 147.3,
+        "profile_url": "https://steamcommunity.com/profiles/76561199755976764",
+        "flags": {
+            "private_profile": false
+        }
+    },
+    {
+        "steam_id": "76561199655797990",
+        "name": "A.L.M.A.J.D.Y..EXE",
+        "rust_hours_total": 3236.1,
+        "rust_hours_2weeks": 181.2,
+        "profile_url": "https://steamcommunity.com/profiles/76561199655797990",
+        "flags": {
+            "private_profile": false
+        }
+    },
+    {
+        "steam_id": "76561199423773718",
+        "name": "barry",
+        "rust_hours_total": 0,
+        "rust_hours_2weeks": 0,
+        "profile_url": "https://steamcommunity.com/profiles/76561199423773718",
+        "flags": {
+            "private_profile": false
+        }
+    },
+    {
+        "steam_id": "76561199544808596",
+        "name": "AustinBeFlossin",
+        "rust_hours_total": 968.6,
+        "rust_hours_2weeks": 9.4,
+        "profile_url": "https://steamcommunity.com/profiles/76561199544808596",
+        "flags": {
+            "private_profile": false
+        }
+    },
+    {
+        "steam_id": "76561198835161180",
+        "name": "\udb40\udc73\u2067\u2067 Oreo",
+        "rust_hours_total": 0.0,
+        "rust_hours_2weeks": 0.0,
+        "profile_url": "https://steamcommunity.com/profiles/76561198835161180",
+        "flags": {
+            "private_profile": false
+        }
+    },
+    {
+        "steam_id": "76561198002134675",
+        "name": "Absynth",
+        "rust_hours_total": 3744.7,
+        "rust_hours_2weeks": 91.7,
+        "profile_url": "https://steamcommunity.com/profiles/76561198002134675",
+        "flags": {
+            "private_profile": false
+        }
+    },
+    {
+        "steam_id": "76561199044675570",
+        "name": "444",
+        "rust_hours_total": 1108.5,
+        "rust_hours_2weeks": 95.0,
+        "profile_url": "https://steamcommunity.com/profiles/76561199044675570",
+        "flags": {
+            "private_profile": false
+        }
+    },
+    {
+        "steam_id": "76561198983269920",
+        "name": "123",
+        "rust_hours_total": 0,
+        "rust_hours_2weeks": 0,
+        "profile_url": "https://steamcommunity.com/profiles/76561198983269920",
+        "flags": {
+            "private_profile": false
+        }
+    },
+    {
+        "steam_id": "76561198341502668",
+        "name": "BuK\u00f6pekNeyiSay\u0131yo",
+        "rust_hours_total": 963.8,
+        "rust_hours_2weeks": 28.6,
+        "profile_url": "https://steamcommunity.com/profiles/76561198341502668",
+        "flags": {
+            "private_profile": false
+        }
+    },
+    {
+        "steam_id": "76561199139899882",
+        "name": "Creamy",
+        "rust_hours_total": 0,
+        "rust_hours_2weeks": 0,
+        "profile_url": "https://steamcommunity.com/profiles/76561199139899882",
+        "flags": {
+            "private_profile": false
+        }
+    },
+    {
+        "steam_id": "76561199887403947",
+        "name": "Wooxie",
+        "rust_hours_total": 0,
+        "rust_hours_2weeks": 0,
+        "profile_url": "https://steamcommunity.com/profiles/76561199887403947",
+        "flags": {
+            "private_profile": false
+        }
+    },
+    {
+        "steam_id": "76561197989977575",
+        "name": "67",
+        "rust_hours_total": 761.3,
+        "rust_hours_2weeks": 88.0,
+        "profile_url": "https://steamcommunity.com/profiles/76561197989977575",
+        "flags": {
+            "private_profile": false
+        }
+    },
+    {
+        "steam_id": "76561199192848237",
+        "name": "[BOB] UR SOLO OPP",
+        "rust_hours_total": 4555.0,
+        "rust_hours_2weeks": 84.6,
+        "profile_url": "https://steamcommunity.com/profiles/76561199192848237",
+        "flags": {
+            "private_profile": false
+        }
+    },
+    {
+        "steam_id": "76561199372829913",
+        "name": "Absolute AI",
+        "rust_hours_total": 435.8,
+        "rust_hours_2weeks": 83.3,
+        "profile_url": "https://steamcommunity.com/profiles/76561199372829913",
+        "flags": {
+            "private_profile": false
+        }
+    },
+    {
+        "steam_id": "76561198348271488",
+        "name": "_T1M_",
+        "rust_hours_total": 0,
+        "rust_hours_2weeks": 0,
+        "profile_url": "https://steamcommunity.com/profiles/76561198348271488",
+        "flags": {
+            "private_profile": false
+        }
+    },
+    {
+        "steam_id": "76561198256894248",
+        "name": "brokulek **********.com",
+        "rust_hours_total": 1285.9,
+        "rust_hours_2weeks": 7.1,
+        "profile_url": "https://steamcommunity.com/profiles/76561198256894248",
+        "flags": {
+            "private_profile": false
+        }
+    },
+    {
+        "steam_id": "76561199093921572",
+        "name": "BabyRus31",
+        "rust_hours_total": 26.8,
+        "rust_hours_2weeks": 22.7,
+        "profile_url": "https://steamcommunity.com/profiles/76561199093921572",
+        "flags": {
+            "private_profile": false
+        }
+    },
+    {
+        "steam_id": "76561199258975534",
+        "name": "cheese",
+        "rust_hours_total": 1091.6,
+        "rust_hours_2weeks": 56.2,
+        "profile_url": "https://steamcommunity.com/profiles/76561199258975534",
+        "flags": {
+            "private_profile": false
+        }
+    },
+    {
+        "steam_id": "76561198964433647",
+        "name": "cr3w",
+        "rust_hours_total": 2069.4,
+        "rust_hours_2weeks": 54.0,
+        "profile_url": "https://steamcommunity.com/profiles/76561198964433647",
+        "flags": {
+            "private_profile": false
+        }
+    },
+    {
+        "steam_id": "76561198878567580",
+        "name": "BADBOY",
+        "rust_hours_total": 625.2,
+        "rust_hours_2weeks": 43.0,
+        "profile_url": "https://steamcommunity.com/profiles/76561198878567580",
+        "flags": {
+            "private_profile": false
+        }
+    },
+    {
+        "steam_id": "76561199003341140",
+        "name": "_VIRUS_",
+        "rust_hours_total": 166.8,
+        "rust_hours_2weeks": 13.7,
+        "profile_url": "https://steamcommunity.com/profiles/76561199003341140",
+        "flags": {
+            "private_profile": false
+        }
+    },
+    {
+        "steam_id": "76561199839510316",
+        "name": "MIRAYD",
+        "rust_hours_total": 0.0,
+        "rust_hours_2weeks": 0.0,
+        "profile_url": "https://steamcommunity.com/profiles/76561199839510316",
+        "flags": {
+            "private_profile": false
+        }
+    },
+    {
+        "steam_id": "76561199564013766",
+        "name": "b00dirhan",
+        "rust_hours_total": 395.0,
+        "rust_hours_2weeks": 24.9,
+        "profile_url": "https://steamcommunity.com/profiles/76561199564013766",
+        "flags": {
+            "private_profile": false
+        }
+    },
+    {
+        "steam_id": "76561198950698765",
+        "name": "7/11 Turkey Sandwich",
+        "rust_hours_total": 0,
+        "rust_hours_2weeks": 0,
+        "profile_url": "https://steamcommunity.com/profiles/76561198950698765",
+        "flags": {
+            "private_profile": false
+        }
+    },
+    {
+        "steam_id": "76561199091775760",
+        "name": "ARES",
+        "rust_hours_total": 0,
+        "rust_hours_2weeks": 0,
+        "profile_url": "https://steamcommunity.com/profiles/76561199091775760",
         "flags": {
             "private_profile": false
         }

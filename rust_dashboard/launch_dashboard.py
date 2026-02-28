@@ -9,6 +9,7 @@ from rust_dashboard.tabs.table import TableTab
 from rust_dashboard.tabs.search import SearchTab
 from rust_dashboard.tabs.charts import ChartsTab
 from rust_dashboard.tabs.dashboard import DashboardTab
+from rust_dashboard.tabs.flagged import FlaggedWatcherTab
 
 from rust_dashboard.jsonwatcher import JSONWatcher
 
@@ -42,10 +43,15 @@ class RustDashboard(QWidget):
         self.tabs = {
             "Dashboard": DashboardTab(self.df),
             "Leaderboard": LeaderboardTab(self.df),
+            "Flagged": FlaggedWatcherTab(),
             "Table": TableTab(self.df),
             "Search": SearchTab(self.df),
             "Charts": ChartsTab(self.df)
         }
+
+        # Connect TableTab's flag signal to method
+        if hasattr(self.tabs["Table"], "flagUpdated"):
+            self.tabs["Table"].flagUpdated.connect(self.on_flag_updated)
 
         # Sidebar buttons
         for name in self.tabs.keys():
@@ -72,8 +78,7 @@ class RustDashboard(QWidget):
         keyboard.add_hotkey("F8", self.start_capture)
         keyboard.add_hotkey("F9", self.stop_capture)
 
-        # ------------------ USE SINGLE GLOBAL WATCHER ------------------ #
-        # Give watcher the dashboard + all tabs that should update
+        # JSON Watcher
         self.watcher = JSONWatcher(
             dashboard=self,
             tabs=[
@@ -85,6 +90,13 @@ class RustDashboard(QWidget):
             ]
         )
 
+    # ---------------- Flag handling ---------------- #
+    def on_flag_updated(self, steam_id: str, flagged: bool):
+        """Called when a player is flagged/unflagged in the Table tab."""
+        flagged_tab = self.tabs["Flagged"]
+        print(f"[FlaggedWatcher] Player {steam_id} flagged={flagged} — refreshing table...")
+        flagged_tab.refresh_flagged_status()
+
     # ---------------- TAB LOADING ---------------- #
     def load_tab(self, widget):
         for i in reversed(range(self.content_layout.count())):
@@ -93,24 +105,18 @@ class RustDashboard(QWidget):
                 w.setParent(None)
         self.content_layout.addWidget(widget)
 
-    # ---------------- DASHBOARD REFRESH (used by watcher) ---------------- #
+    # ---------------- DASHBOARD REFRESH ---------------- #
     def refresh_data(self, df):
-        """Called by JSONWatcher when data updates."""
         self.df = df.copy()
-
-        # Update all tabs with new data
         for tab in self.tabs.values():
             if hasattr(tab, "refresh_data"):
                 tab.refresh_data(self.df)
             elif hasattr(tab, "update_data"):
                 tab.update_data(self.df)
-
-        # If current tab needs visual refresh, update it too
         if self.content_layout.count() > 0:
             widget = self.content_layout.itemAt(0).widget()
             if hasattr(widget, "refresh_data"):
                 widget.refresh_data(self.df)
-
         print("[+] Dashboard and all tabs refreshed")
 
     # ---------------- OCR CAPTURE SYSTEM ---------------- #
@@ -135,7 +141,6 @@ class RustDashboard(QWidget):
 
             time.sleep(0.15)
 
-        # Save CSV when stopped
         with open(SAVE_CSV, "w", newline="", encoding="utf-8") as f:
             writer = csv.writer(f)
             writer.writerow(["name", "steamid", "profile_url"])
@@ -144,7 +149,6 @@ class RustDashboard(QWidget):
 
         print(f"\n[+] OCR capture stopped. Saved {len(self.final_results)} entries to {SAVE_CSV}")
 
-        # Trigger getPlayerData.py immediately
         try:
             print("[+] Triggering getPlayerData.py to fetch player data...")
             subprocess.Popen(["python", "getPlayerData.py"])
